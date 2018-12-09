@@ -7,28 +7,60 @@
 //
 
 #include "OWQueue.h"
-#include "stdlib.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-
-
-unsigned char AddOWQueue(OWLINKED **Queue)
+char queue_push(QUEUE_STRUCT **queue,PACKAGE_STRUCT *package)
 {
-    unsigned char RET = 0;
-    OWLINKED *Tail = *Queue;
+    char RET = Q_SUCCESSFUL;
+    QUEUE_STRUCT *localQueue;
     
-    while(NULL != Tail)
-        Tail = Tail->Next;
     
-    Tail = (OWLINKED*)malloc(sizeof(OWLINKED));
-    
-    if(NULL == Tail)
-        RET = 1;
+    if(NULL == (QUEUE_STRUCT *)*queue)
+    {
+        *queue = (QUEUE_STRUCT *)malloc(sizeof(QUEUE_STRUCT));
+        if(NULL != *queue)
+            localQueue = *queue;
+        else
+            RET = Q_MEMORY_ERROR;
+    }
+    else
+    {
+        localQueue = *queue;
+        while(NULL != localQueue->NEXT)
+            localQueue = localQueue->NEXT;
+        localQueue->NEXT = (QUEUE_STRUCT *)malloc(sizeof(QUEUE_STRUCT));
+        if(NULL != localQueue->NEXT)
+            localQueue = localQueue->NEXT;
+        else
+            RET = Q_MEMORY_ERROR;
+    }
+    if(!RET)
+    {
+        localQueue->NEXT = NULL;
+        localQueue->VALUE = package;
+    }
     
     return RET;
 }
 
-void FreeOWQueue(OWLINKED **Queue)
+char queue_pop(QUEUE_STRUCT **queue,PACKAGE_STRUCT **package)
 {
+    char RET = Q_SUCCESSFUL;
+    QUEUE_STRUCT *localQueue;
     
+    localQueue = *queue;
+    if(NULL != localQueue)
+    {
+        *package = localQueue->VALUE;
+        *queue = localQueue->NEXT;
+        free(localQueue);
+    }
+    else
+    {
+        RET = Q_EMPTY;
+    }
+    
+    
+    return RET;
 }
-

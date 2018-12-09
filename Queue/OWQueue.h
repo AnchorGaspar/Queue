@@ -6,18 +6,28 @@
 //  Copyright © 2018 Anchor Ke. All rights reserved.
 //
 
-#ifndef OWQueue_h
-#define OWQueue_h
+#ifndef _OWQUEUE_
+#define _OWQUEUE_
 
-#include <stdio.h>
-
-//Queue
-typedef struct _OWLINKED_
+typedef struct _PACKAGE_STRUCT_
 {
-    void *Data;
-    struct _OWLINKED_ *Next;
-} OWLINKED;
+    unsigned char Value;
+} PACKAGE_STRUCT;
 
-unsigned char AddOWQueue(OWLINKED **Queue);
-void FreeOWQueue(OWLINKED **Queue);
-#endif /* OWQueue_h */
+typedef struct _QUEUE_STRUCT_
+{
+    struct _QUEUE_STRUCT_ *NEXT;
+    PACKAGE_STRUCT *VALUE;
+} QUEUE_STRUCT;
+
+typedef enum
+{
+    Q_SUCCESSFUL = 0,
+    Q_MEMORY_ERROR = -1,
+    Q_EMPTY = -2
+} QUEUE_STATUS;
+
+char queue_push(QUEUE_STRUCT **queue,PACKAGE_STRUCT *package);
+char queue_pop(QUEUE_STRUCT **queue,PACKAGE_STRUCT **package);
+
+#endif
