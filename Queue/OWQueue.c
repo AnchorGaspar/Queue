@@ -10,57 +10,85 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char queue_push(QUEUE_STRUCT **queue,PACKAGE_STRUCT *package)
+
+
+char queue_push(QUEUE_HEAD *head,const PACKAGE_STRUCT *package)
 {
-    char RET = Q_SUCCESSFUL;
-    QUEUE_STRUCT *localQueue;
-    
-    
-    if(NULL == (QUEUE_STRUCT *)*queue)
-    {
-        *queue = (QUEUE_STRUCT *)malloc(sizeof(QUEUE_STRUCT));
-        if(NULL != *queue)
-            localQueue = *queue;
-        else
-            RET = Q_MEMORY_ERROR;
-    }
-    else
-    {
-        localQueue = *queue;
-        while(NULL != localQueue->NEXT)
-            localQueue = localQueue->NEXT;
-        localQueue->NEXT = (QUEUE_STRUCT *)malloc(sizeof(QUEUE_STRUCT));
-        if(NULL != localQueue->NEXT)
-            localQueue = localQueue->NEXT;
-        else
-            RET = Q_MEMORY_ERROR;
-    }
-    if(!RET)
-    {
-        localQueue->NEXT = NULL;
-        localQueue->VALUE = package;
-    }
-    
-    return RET;
+	char RET = Q_SUCCESSFUL;
+	QUEUE_STRUCT *localQueue;
+
+
+	if(NULL == head->FIRST)
+	{
+		if(NULL != (head->FIRST = (QUEUE_STRUCT*)malloc(sizeof(QUEUE_STRUCT))))
+			localQueue = head->FIRST;
+		else
+			RET = Q_MEMORY_ERROR;
+	}
+	else
+	{
+		localQueue = head->FIRST;
+		while(NULL != localQueue->NEXT)
+			localQueue = localQueue->NEXT;
+		if(NULL != (localQueue->NEXT = (QUEUE_STRUCT*)malloc(sizeof(QUEUE_STRUCT))))
+			localQueue = localQueue->NEXT;
+		else
+			RET = Q_MEMORY_ERROR;
+	}
+
+	if(!RET)
+	{
+		head->COUNT ++;
+		localQueue->NEXT = NULL;
+		localQueue->VALUE = (PACKAGE_STRUCT *)package;
+	}
+
+	return RET;
+
 }
 
-char queue_pop(QUEUE_STRUCT **queue,PACKAGE_STRUCT **package)
+PACKAGE_STRUCT* queue_pop(QUEUE_HEAD *head)
 {
-    char RET = Q_SUCCESSFUL;
-    QUEUE_STRUCT *localQueue;
-    
-    localQueue = *queue;
-    if(NULL != localQueue)
-    {
-        *package = localQueue->VALUE;
-        *queue = localQueue->NEXT;
-        free(localQueue);
-    }
-    else
-    {
-        RET = Q_EMPTY;
-    }
-    
-    
-    return RET;
+	PACKAGE_STRUCT *RET = NULL;
+	QUEUE_STRUCT *localQueue;
+
+	if(head->COUNT)
+	{
+		localQueue = head->FIRST;
+		head->FIRST = localQueue->NEXT;
+		head->COUNT --;
+		RET = localQueue->VALUE;
+		free(localQueue);
+	}
+	return RET;
 }
+
+static char queue_kill_element(QUEUE_STRUCT *element)
+{
+	char RET = 0;
+
+#if USE_RECURCIVE
+	if(NULL != element->NEXT)
+		queue_kill_element(element->NEXT);
+	free(element->VALUE);
+	free(element);
+#endif
+	
+	return RET;
+}
+
+char queue_destroy(QUEUE_HEAD *head)
+{
+	char RET = 0;
+
+#if USE_RECURCIVE
+	if(head->COUNT)
+	{
+		queue_kill_element(head->FIRST);
+		head->FIRST = NULL;
+		head->COUNT = 0;
+	}
+#endif
+	return RET;
+}
+

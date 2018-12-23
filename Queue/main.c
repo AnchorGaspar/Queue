@@ -11,42 +11,33 @@
 #include "OWQueue.h"
 
 
-/*
-char queue_initial(QUEUE_STRUCT **queue);
-char queue_push(QUEUE_STRUCT **queue,PACKAGE_STRUCT *package);
-PACKAGE_STRUCT* queue_pop(QUEUE_STRUCT **queue);
-unsigned char queue_count(void);
-unsigned char queue_removeat(unsigned char index);
-*/
-
 int main(int argc, const char * argv[]) {
     // insert code here...
-    
-    QUEUE_STRUCT *MyQueue;
-    PACKAGE_STRUCT *Mypackage;
-    
-    printf("Hello, World!\n");
-    
-    MyQueue = NULL;
-    
-    Mypackage = (PACKAGE_STRUCT *)malloc(sizeof(PACKAGE_STRUCT));
-    Mypackage->Value = 0;
-    queue_push(&MyQueue,Mypackage);
-    
-    Mypackage = (PACKAGE_STRUCT *)malloc(sizeof(PACKAGE_STRUCT));
-    Mypackage->Value = 1;
-    queue_push(&MyQueue,Mypackage);
-    
-    Mypackage = (PACKAGE_STRUCT *)malloc(sizeof(PACKAGE_STRUCT));
-    Mypackage->Value = 2;
-    queue_push(&MyQueue,Mypackage);
 
-    queue_pop(&MyQueue,&Mypackage);
-    free(Mypackage);
-    queue_pop(&MyQueue,&Mypackage);
-    free(Mypackage);
-    queue_pop(&MyQueue,&Mypackage);
-    free(Mypackage);
+	QUEUE_HEAD Head={.FIRST = NULL,.COUNT = 0};
+	PACKAGE_STRUCT *Mypackage;
+	int Loop;
+
+	for(Loop = 0;Loop < 100;Loop++)
+	{
+		Mypackage = (PACKAGE_STRUCT *)malloc(sizeof(PACKAGE_STRUCT));
+		Mypackage->Value = Loop;
+		queue_push(&Head,Mypackage);
+	}
+
+
+	Mypackage = queue_pop(&Head);
+	printf("Value = %d\n",Mypackage->Value);
+	free(Mypackage);
+
+	Mypackage = queue_pop(&Head);
+	printf("Value = %d\n",Mypackage->Value);
+	free(Mypackage);
+
+	Mypackage = queue_pop(&Head);
+	printf("Value = %d\n",Mypackage->Value);
+	free(Mypackage);
+
 
     return 0;
 }
